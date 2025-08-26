@@ -54,10 +54,14 @@ class Pbvr(MakefilePackage):
     depends_on("vtk@9.3.1~mpi", when="~mpi")
     depends_on("vtk@9.3.1+mpi", when="+mpi")
 
-    patch("kvs-conf.patch", when="~extended_fileformat")
-    patch("kvs-extended-fileformat-conf.patch", when="+extended_fileformat")
+    patch("kvs-conf.patch", when="~client~extended_fileformat")
+    patch("kvs-extended-fileformat-conf.patch", when="~client+extended_fileformat")
+    patch("kvs-client-conf.patch", when="+client~extended_fileformat")
+    patch("kvs-client-extended-fileformat-conf.patch", when="+client+extended_fileformat")
     patch("pbvr-conf.patch", when="~mpi")
     patch("pbvr-conf-mpi.patch", when="+mpi")
+    patch("makefile-machime-gcc-omp.patch", when="~mpi")
+    patch("makefile-machime-gcc-mpi-omp.patch", when="+mpi")
 
     def patch(self):
         source_dir = self.stage.source_path
@@ -108,12 +112,14 @@ class Pbvr(MakefilePackage):
                 make("install")
 
             # Build Client
-            qmake = Executable(spec["qt-base"].prefix.bin.qmake)
-            build_dir = join_path(self.stage.source_path, "Client/build")
-            os.makedirs(build_dir)
-            with working_dir(build_dir):
-                qmake("../pbvr_client.pro")
-                make()
+            if "+client" in spec:
+                qmake = Executable(spec["qt-base"].prefix.bin.qmake)
+                build_dir = join_path(self.stage.source_path, "Client/build")
+                os.makedirs(build_dir)
+                with working_dir(build_dir):
+                    qmake("../pbvr_client.pro")
+                    make()
+
             # Build Sevrer
             make("-C", "CS_server")
 
@@ -122,8 +128,9 @@ class Pbvr(MakefilePackage):
         install("CS_server/pbvr_server", prefix.bin)
         install("CS_server/Filter/pbvr_filter", prefix.bin)
         install("CS_server/KVSMLConverter/Example/Release/kvsml-converter", prefix.bin)
-        install("Client/build/App/pbvr_client", prefix.bin)
 
-        src = self.stage.source_path
-        install_tree(os.path.join(src, "Client/build/App/Shader"), os.path.join(prefix.bin, "Shader"))
-        install_tree(os.path.join(src, "Client/build/App/Font"), os.path.join(prefix.bin, "Font"))
+        if "+client" in spec:
+            install("Client/build/App/pbvr_client", prefix.bin)
+            src = self.stage.source_path
+            install_tree(os.path.join(src, "Client/build/App/Shader"), os.path.join(prefix.bin, "Shader"))
+            install_tree(os.path.join(src, "Client/build/App/Font"), os.path.join(prefix.bin, "Font"))
