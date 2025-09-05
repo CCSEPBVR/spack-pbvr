@@ -32,3 +32,5 @@ spack install pbvr %gcc@8.5.0　# コンパイラgcc@8.5.0を使ってインス�
 spack install pbvr +client +mpi +extended_fileformat %gcc@8.5.0 # すべて有効(デフォルト)
 spack install pbvr ~client ~mpi ~extended_fileformat %gcc@8.5.0 # すべて無効
 ```
+データ形式拡張(VTK)を有効にすると、フィルタプログラム・KVSMLコンバータを使用せずにサンプルデータを可視化することができる。<br>
+大規模データを扱う場合は、フィルタプログラム・KVSMLコンバータを使用し、KVSML形式に変換して可視化することを推奨する。
