@@ -49,7 +49,7 @@ class Pbvr(MakefilePackage):
     depends_on("cxx", type="build")
 
     depends_on("mpi", when="+mpi")
-    depends_on("qt-base@6.2.4+opengl", when="+client")
+    depends_on("qt-base-pbvr@6.2.4+opengl", when="+client")
     depends_on("qt-svg-pbvr@6.2.4+widgets", when="+client")
     depends_on("vtk@9.3.1~mpi", when="~mpi")
     depends_on("vtk@9.3.1+mpi", when="+mpi")
@@ -113,7 +113,7 @@ class Pbvr(MakefilePackage):
 
             # Build Client
             if "+client" in spec:
-                qmake = Executable(spec["qt-base"].prefix.bin.qmake)
+                qmake = Executable(spec["qt-base-pbvr"].prefix.bin.qmake)
                 build_dir = join_path(self.stage.source_path, "Client/build")
                 os.makedirs(build_dir)
                 with working_dir(build_dir):
