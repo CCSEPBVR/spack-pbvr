@@ -47,12 +47,12 @@ class QtSvgPbvr(QtPackage):
     depends_on("c", type="build")
     depends_on("cxx", type="build")
 
-    depends_on("qt-base +gui")
-    depends_on("qt-base +widgets", when="+widgets")
+    depends_on("qt-base-pbvr +gui")
+    depends_on("qt-base-pbvr +widgets", when="+widgets")
 
     for _v in QtBase.versions:
         v = str(_v)
-        depends_on("qt-base@" + v, when="@" + v)
+        depends_on("qt-base-pbvr@" + v, when="@" + v)
 
     def cmake_args(self):
         args = super().cmake_args() + []
