@@ -1,17 +1,19 @@
---- a/CS_server/arch/Makefile_machine_gcc_mpi_omp       2025-08-26 12:05:43.000000000 +0900
-+++ b/CS_server/arch/Makefile_machine_gcc_mpi_omp       2025-08-26 12:06:07.000000000 +0900
-@@ -2,7 +2,7 @@
+diff --git a/Server/arch/Makefile_machine_gcc_mpi_omp b/Server/arch/Makefile_machine_gcc_mpi_omp
+index f3ea5636..df600185 100644
+--- a/Server/arch/Makefile_machine_gcc_mpi_omp
++++ b/Server/arch/Makefile_machine_gcc_mpi_omp
+@@ -2,7 +2,7 @@ CXX=g++
  CXXFLAGS=-O3 -march=native -std=c++17
 
  LD=g++
 -LDFLAGS=-lstdc++ -static-libgcc -static-libstdc++
-+LDFLAGS=-lstdc++ -static-libgcc
++LDFLAGS=-lstdc++
 
  MPICXX=mpic++
  MPICXXFLAGS=-O3 -fopenmp -march=native -std=c++17
-@@ -11,4 +11,4 @@
+@@ -11,4 +11,4 @@ MPICC=mpicc
  MPICCFLAGS=-O3 -fopenmp -march=native -fcommon
 
  MPILD=mpic++
 -MPILDFLAGS=-lstdc++ -fopenmp -static-libgcc -static-libstdc++
-+MPILDFLAGS=-lstdc++ -fopenmp -static-libgcc
++MPILDFLAGS=-lstdc++ -fopenmp

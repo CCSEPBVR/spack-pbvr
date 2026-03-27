@@ -33,12 +33,17 @@ class Pbvr(MakefilePackage):
 
     homepage = "https://github.com/CCSEPBVR/CS-IS-PBVR"
     url = "https://github.com/CCSEPBVR/CS-IS-PBVR/archive/refs/tags/v3.5.0.tar.gz"
+    git = "https://github.com/CCSEPBVR/CS-IS-PBVR.git"
 
     maintainers("sakamoto-naohito")
 
     license("LGPL-3.0-only")
 
-    version("3.5.0", sha256="264c82d9e94b6f8477952ce2f80834332dbc9047db694f7f3ba2ab07c7c92aae")
+    version(
+        "develop",
+        branch="feature/WebSocket",
+        commit="e7b3cad3985db0efeb9803ca3ad8fe2de7c37cbd",
+    )
 
     variant("client", default=True, description="Build Client Program")
     variant("mpi", default=True, description="Enable MPI Support")
@@ -51,8 +56,10 @@ class Pbvr(MakefilePackage):
     depends_on("mpi", when="+mpi")
     depends_on("qt-base-pbvr@6.2.4+opengl", when="+client")
     depends_on("qt-svg-pbvr@6.2.4+widgets", when="+client")
+    depends_on("qt-websockets-pbvr@6.2.4", when="+client")
     depends_on("vtk@9.3.1~mpi", when="~mpi")
     depends_on("vtk@9.3.1+mpi", when="+mpi")
+    depends_on("uwebsockets-pbvr@20.76.0")
 
     patch("kvs-conf.patch", when="~client~extended_fileformat")
     patch("kvs-extended-fileformat-conf.patch", when="~client+extended_fileformat")
@@ -62,6 +69,7 @@ class Pbvr(MakefilePackage):
     patch("pbvr-conf-mpi.patch", when="+mpi")
     patch("makefile-machime-gcc-omp.patch", when="~mpi")
     patch("makefile-machime-gcc-mpi-omp.patch", when="+mpi")
+    patch("uwebsockets.patch")
 
     def patch(self):
         source_dir = self.stage.source_path
@@ -104,6 +112,8 @@ class Pbvr(MakefilePackage):
             VTK_VERSION="9.3",
             VTK_INCLUDE_PATH=str(spec["vtk"].prefix.include) + "/vtk-9.3",
             VTK_LIB_PATH=str(spec["vtk"].prefix.lib),
+            UWEBSOCKETS_INCLUDE=str(spec["uwebsockets-pbvr"].prefix.include),
+            UWEBSOCKETS_LIB=str(spec["uwebsockets-pbvr"].prefix.lib),
         ):
             # Build KVS
             build_dir = join_path(self.stage.source_path, "KVS")
@@ -115,19 +125,24 @@ class Pbvr(MakefilePackage):
             if "+client" in spec:
                 qmake = Executable(spec["qt-base-pbvr"].prefix.bin.qmake)
                 build_dir = join_path(self.stage.source_path, "Client/build")
+                libproxy_plugin_dir=join_path(str(spec["libproxy"].prefix.lib), "libproxy")
                 os.makedirs(build_dir)
                 with working_dir(build_dir):
                     qmake("../pbvr_client.pro")
                     make()
 
             # Build Sevrer
-            make("-C", "CS_server")
+            make("-C", "Server/VisModule")
+            make("-C", "Server/FunctionParser")
+            make("-C", "Server/KVSMLConverter")
+            make("-C", "Server/Filter")
+            make("-C", "Server")
 
     def install(self, spec, prefix):
         mkdirp(prefix.bin)
-        install("CS_server/pbvr_server", prefix.bin)
-        install("CS_server/Filter/pbvr_filter", prefix.bin)
-        install("CS_server/KVSMLConverter/Example/Release/kvsml-converter", prefix.bin)
+        install("Server/pbvr_server", prefix.bin)
+        install("Server/Filter/pbvr_filter", prefix.bin)
+        install("Server/KVSMLConverter/Example/Release/kvsml-converter", prefix.bin)
 
         if "+client" in spec:
             install("Client/build/App/pbvr_client", prefix.bin)

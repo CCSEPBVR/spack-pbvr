@@ -1,5 +1,7 @@
---- a/KVS/kvs.conf	2025-08-26 09:59:17.000000000 +0900
-+++ b/KVS/kvs.conf	2025-08-26 09:59:32.000000000 +0900
+diff --git a/KVS/kvs.conf b/KVS/kvs.conf
+index fb0a7636..8326abf9 100644
+--- a/KVS/kvs.conf
++++ b/KVS/kvs.conf
 @@ -4,7 +4,7 @@
  #=============================================================================
  KVS_ENABLE_OPENGL                = 1
@@ -8,8 +10,8 @@
 +KVS_ENABLE_GLEW                  = 0
  KVS_ENABLE_OPENMP                = 0
  KVS_ENABLE_DEPRECATED            = 0
- 
-@@ -14,7 +14,7 @@
+
+@@ -14,7 +14,7 @@ KVS_SUPPORT_GLFW                 = 0
  KVS_SUPPORT_FFMPEG               = 0
  KVS_SUPPORT_OPENCV               = 0
  KVS_SUPPORT_QT                   = 1

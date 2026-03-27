@@ -1,0 +1,83 @@
+diff --git a/Server/Makefile b/Server/Makefile
+index 7a933c5c..6e093fb5 100644
+--- a/Server/Makefile
++++ b/Server/Makefile
+@@ -85,7 +85,6 @@ LINK_LIBRARY += -lkvsSupportExtendedFileFormat \
+ -lvtkCommonExecutionModel-$(VTK_VERSION) \
+ -lvtkFiltersCore-$(VTK_VERSION) \
+ -lvtkFiltersExtraction-$(VTK_VERSION) \
+--lvtkFiltersGeneral-$(VTK_VERSION) \
+ -lvtkFiltersGeometry-$(VTK_VERSION) \
+ -lvtkFiltersParallel-$(VTK_VERSION) \
+ -lvtkCommonExecutionModel-$(VTK_VERSION) \
+@@ -95,24 +94,18 @@ LINK_LIBRARY += -lkvsSupportExtendedFileFormat \
+ -lvtkIOCGNSReader-$(VTK_VERSION) \
+ -lvtkIOEnSight-$(VTK_VERSION) \
+ -lvtkIOParallel-$(VTK_VERSION) \
++-lvtkFiltersGeneral-$(VTK_VERSION) \
+ -lvtkIOLegacy-$(VTK_VERSION) \
+ -lvtkIOXML-$(VTK_VERSION) \
+ -lvtkCommonDataModel-$(VTK_VERSION) \
+ -lvtkIOXMLParser-$(VTK_VERSION) \
+--lvtkexpat-$(VTK_VERSION) \
+ -lvtkCommonTransforms-$(VTK_VERSION) \
+ -lvtkCommonMath-$(VTK_VERSION) \
+ -lvtkCommonCore-$(VTK_VERSION) \
+ -lvtksys-$(VTK_VERSION) \
+--lvtkloguru-$(VTK_VERSION) \
+ -lvtkIOCore-$(VTK_VERSION) \
+--lvtkzlib-$(VTK_VERSION) \
+--lvtkdoubleconversion-$(VTK_VERSION) \
+--lvtklzma-$(VTK_VERSION) \
+--lvtklz4-$(VTK_VERSION) \
+ -lvtkCommonSystem-$(VTK_VERSION) \
+--lvtkCommonMisc-$(VTK_VERSION) \
+--lvtkpugixml-$(VTK_VERSION)
++-lvtkCommonMisc-$(VTK_VERSION)
+ DEFINITIONS += -DEXTEND_FILE_FORMAT
+ endif
+ endif
+@@ -130,9 +123,8 @@ LINK_LIBRARY += -lstdc++fs
+ #=============================================================================
+ # uWebSockets
+ #=============================================================================
+-INCLUDE_PATH += -I$(KVS_UWS_DIR)/src -I$(KVS_UWS_DIR)/uSockets/src
+-LIBRARY_PATH += -L/opt/homebrew/opt/openssl@3/lib
+-LINK_LIBRARY += $(KVS_UWS_DIR)/uSockets/uSockets.a -lssl -lcrypto -lz
++INCLUDE_PATH += -I$(UWEBSOCKETS_INCLUDE)/uWebSockets -I$(UWEBSOCKETS_INCLUDE)/uSockets
++LINK_LIBRARY += $(UWEBSOCKETS_LIB)/uSockets.a -lssl -lcrypto -lz
+
+ #=========================================================
+ # VPATH（検索パス）設定
+
+diff --git a/Server/KVSMLConverter/Makefile.def b/Server/KVSMLConverter/Makefile.def
+index 5d5e674c..d0364bf8 100644
+--- a/Server/KVSMLConverter/Makefile.def
++++ b/Server/KVSMLConverter/Makefile.def
+@@ -208,12 +208,8 @@ VTK_LINK_LIBRARY := \
+ -lvtkIOParallel-$(VTK_VERSION) \
+ -lvtkIOXML-$(VTK_VERSION) \
+ -lvtkIOXMLParser-$(VTK_VERSION) \
+--lvtkexpat-$(VTK_VERSION) \
+ -lvtkCommonMath-$(VTK_VERSION) \
+--lvtkcgns-$(VTK_VERSION) \
+ -lvtkCommonTransforms-$(VTK_VERSION) \
+--lvtkexpat-$(VTK_VERSION) \
+--lvtkhdf5-$(VTK_VERSION) \
+ -lvtkParallelCore-$(VTK_VERSION) \
+ -lvtkIOLegacy-$(VTK_VERSION) \
+ -lvtkFiltersExtraction-$(VTK_VERSION) \
+@@ -222,13 +218,7 @@ VTK_LINK_LIBRARY := \
+ -lvtkCommonSystem-$(VTK_VERSION) \
+ -lvtkCommonCore-$(VTK_VERSION) \
+ -lvtkIOCore-$(VTK_VERSION) \
+--lvtkzlib-$(VTK_VERSION) \
+--lvtklzma-$(VTK_VERSION) \
+--lvtkdoubleconversion-$(VTK_VERSION) \
+--lvtklz4-$(VTK_VERSION) \
+ -lvtksys-$(VTK_VERSION) \
+--lvtkloguru-$(VTK_VERSION) \
+--lvtkpugixml-$(VTK_VERSION) \
+ -lvtkCommonMisc-$(VTK_VERSION) \
+ -lvtkCommonMath-$(VTK_VERSION) \
+ -lvtkCommonExecutionModel-$(VTK_VERSION) \
