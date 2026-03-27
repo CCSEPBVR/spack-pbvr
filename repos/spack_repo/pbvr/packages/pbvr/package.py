@@ -54,7 +54,7 @@ class Pbvr(MakefilePackage):
     depends_on("cxx", type="build")
 
     depends_on("mpi", when="+mpi")
-    depends_on("qt-base-pbvr@6.2.4+opengl", when="+client")
+    depends_on("qt-base-pbvr@6.2.4+opengl+network~sql", when="+client")
     depends_on("qt-svg-pbvr@6.2.4+widgets", when="+client")
     depends_on("qt-websockets-pbvr@6.2.4", when="+client")
     depends_on("vtk@9.3.1~mpi", when="~mpi")
@@ -85,28 +85,6 @@ class Pbvr(MakefilePackage):
                     pass
 
     def build(self, spec, prefix):
-        # Workaround for qmake's $$system() not capturing command output correctly.
-        # This issue is caused by a known bug in certain Linux kernel versions.
-        # To avoid it, Qt is built with the '-no-feature-forkfd_pidfd' option to disable
-        # the use of new process management features that rely on pidfd.
-        # Note: Red Hat fixed this kernel issue in version 4.18.0-392 and later.
-        is_rhel8_bug_fixed = False
-        release_str = platform.uname().release
-        match = re.match(r"^(\d+\.\d+\.\d+)-([\d\.]+)\.el8", release_str)
-        if match and not is_rhel8_bug_fixed:
-            base_version = match.group(1)
-            build_number = match.group(2).split(".")[0]
-            full_version = f"{base_version}.{build_number}"
-            if Version(full_version) < Version("4.18.0.392"):
-                raise InstallError(
-                    f"The kernel version of this system is ${full_version}.\n"
-                    "You get an error when running qmake after installing qt-base"
-                    " on Red Hat Enterprise Linux 8 versions older than 8.7.\n"
-                    "You need to fix the package.py file for qt-base,"
-                    " so please refer to the following URL.\n"
-                    "https://github.com/CCSEPBVR/CS-IS-PBVR/wiki/BuildforLinux_JP"
-                )
-
         with set_env(
             SPACK_KVS_DIR=str(prefix),
             VTK_VERSION="9.3",
