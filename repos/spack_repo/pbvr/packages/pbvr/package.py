@@ -40,7 +40,7 @@ class Pbvr(MakefilePackage):
     license("LGPL-3.0-only")
 
     version(
-        "develop",
+        "3.6.0",
         branch="feature/WebSocket",
         commit="e7b3cad3985db0efeb9803ca3ad8fe2de7c37cbd",
     )
