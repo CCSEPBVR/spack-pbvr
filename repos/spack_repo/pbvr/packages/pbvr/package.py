@@ -49,6 +49,9 @@ class Pbvr(MakefilePackage):
     variant("mpi", default=True, description="Enable MPI Support")
     variant("extended_fileformat", default=True, description="Enable extended fileformat")
 
+    conflicts("+client", when="target=aarch64:", msg="Client build is disabled on ARM targiets")
+    conflicts("+extended_fileformat", when="target=aarch64:", msg="Extended FileFormat is disabled on ARM targets")
+
     depends_on("gmake", type="build")
     depends_on("c", type="build")
     depends_on("cxx", type="build")
@@ -57,8 +60,8 @@ class Pbvr(MakefilePackage):
     depends_on("qt-base-pbvr@6.2.4+opengl+network~sql", when="+client")
     depends_on("qt-svg-pbvr@6.2.4+widgets", when="+client")
     depends_on("qt-websockets-pbvr@6.2.4", when="+client")
-    depends_on("vtk@9.3.1~mpi", when="~mpi")
-    depends_on("vtk@9.3.1+mpi", when="+mpi")
+    depends_on("vtk@9.3.1~mpi", when="~mpi target=x86_64:")
+    depends_on("vtk@9.3.1+mpi", when="+mpi target=x86_64:")
     depends_on("uwebsockets-pbvr@20.76.0")
 
     patch("kvs-conf.patch", when="~client~extended_fileformat")
@@ -70,6 +73,9 @@ class Pbvr(MakefilePackage):
     patch("makefile-machime-gcc-omp.patch", when="~mpi")
     patch("makefile-machime-gcc-mpi-omp.patch", when="+mpi")
     patch("uwebsockets.patch")
+
+    def _is_arm(self, spec):
+        return spec.satisfies("target=aarch64:")
 
     def patch(self):
         source_dir = self.stage.source_path
@@ -85,14 +91,20 @@ class Pbvr(MakefilePackage):
                     pass
 
     def build(self, spec, prefix):
-        with set_env(
-            SPACK_KVS_DIR=str(prefix),
-            VTK_VERSION="9.3",
-            VTK_INCLUDE_PATH=str(spec["vtk"].prefix.include) + "/vtk-9.3",
-            VTK_LIB_PATH=str(spec["vtk"].prefix.lib),
-            UWEBSOCKETS_INCLUDE=str(spec["uwebsockets-pbvr"].prefix.include),
-            UWEBSOCKETS_LIB=str(spec["uwebsockets-pbvr"].prefix.lib),
-        ):
+        env = {
+            "SPACK_KVS_DIR": str(prefix),
+            "UWEBSOCKETS_INCLUDE": str(spec["uwebsockets-pbvr"].prefix.include),
+            "UWEBSOCKETS_LIB": str(spec["uwebsockets-pbvr"].prefix.lib),
+        }
+
+        if not self._is_arm(spec):
+            env.update({
+                "VTK_VERSION": "9.3",
+                "VTK_INCLUDE_PATH": str(spec["vtk"].prefix.include) + "/vtk-9.3",
+                "VTK_LIB_PATH": str(spec["vtk"].prefix.lib),
+            })
+
+        with set_env(**env):
             # Build KVS
             build_dir = join_path(self.stage.source_path, "KVS")
             with working_dir(build_dir):
@@ -112,15 +124,20 @@ class Pbvr(MakefilePackage):
             # Build Sevrer
             make("-C", "Server/VisModule")
             make("-C", "Server/FunctionParser")
-            make("-C", "Server/KVSMLConverter")
             make("-C", "Server/Filter")
+            make("-C", "Server", "third")
             make("-C", "Server")
+
+            if not self._is_arm(spec):
+                make("-C", "Server/KVSMLConverter")
 
     def install(self, spec, prefix):
         mkdirp(prefix.bin)
         install("Server/pbvr_server", prefix.bin)
         install("Server/Filter/pbvr_filter", prefix.bin)
-        install("Server/KVSMLConverter/Example/Release/kvsml-converter", prefix.bin)
+
+        if not self._is_arm(spec):
+            install("Server/KVSMLConverter/Example/Release/kvsml-converter", prefix.bin)
 
         if "+client" in spec:
             install("Client/build/App/pbvr_client", prefix.bin)
