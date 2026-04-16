@@ -1,19 +1,23 @@
 diff --git a/Server/arch/Makefile_machine_gcc_mpi_omp b/Server/arch/Makefile_machine_gcc_mpi_omp
-index f3ea5636..df600185 100644
+index f3ea5636..82170a12 100644
 --- a/Server/arch/Makefile_machine_gcc_mpi_omp
 +++ b/Server/arch/Makefile_machine_gcc_mpi_omp
-@@ -2,7 +2,7 @@ CXX=g++
+@@ -2,13 +2,13 @@ CXX=g++
  CXXFLAGS=-O3 -march=native -std=c++17
 
  LD=g++
 -LDFLAGS=-lstdc++ -static-libgcc -static-libstdc++
 +LDFLAGS=-lstdc++
 
- MPICXX=mpic++
+-MPICXX=mpic++
++MPICXX ?= mpic++
  MPICXXFLAGS=-O3 -fopenmp -march=native -std=c++17
-@@ -11,4 +11,4 @@ MPICC=mpicc
+
+-MPICC=mpicc
++MPICC ?= mpicc
  MPICCFLAGS=-O3 -fopenmp -march=native -fcommon
 
- MPILD=mpic++
+-MPILD=mpic++
 -MPILDFLAGS=-lstdc++ -fopenmp -static-libgcc -static-libstdc++
++MPILD ?= mpic++
 +MPILDFLAGS=-lstdc++ -fopenmp

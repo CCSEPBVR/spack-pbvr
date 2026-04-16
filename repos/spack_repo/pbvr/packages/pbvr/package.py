@@ -14,6 +14,13 @@ from llnl.util.filesystem import install_tree
 from spack.package import *
 from spack.util.environment import set_env
 
+# fujitsu_mpi's setup_dependent_build_environment expects these
+# module-level compiler wrapper attributes even for packages that
+# are primarily C/C++-based.
+spack_cc = os.environ.get("SPACK_CC", "cc")
+spack_cxx = os.environ.get("SPACK_CXX", "c++")
+spack_fc = os.environ.get("SPACK_FC", "f90")
+spack_f77 = os.environ.get("SPACK_F77", "f77")
 
 class Pbvr(MakefilePackage):
     """CS/IS-PBVR is a scientific visualization application designed
@@ -102,6 +109,17 @@ class Pbvr(MakefilePackage):
                 "VTK_VERSION": "9.3",
                 "VTK_INCLUDE_PATH": str(spec["vtk"].prefix.include) + "/vtk-9.3",
                 "VTK_LIB_PATH": str(spec["vtk"].prefix.lib),
+            })
+
+        if "+mpi" in spec and self._is_arm(spec):
+            mpi_prefix = str(spec["mpi"].prefix)
+            mpi_lib64 = join_path(mpi_prefix, "lib64")
+            old_ld = os.environ.get("LD_LIBRARY_PATH", "")
+            env.update({
+                "MPICXX": spec["mpi"].mpicxx,
+                "MPICC": spec["mpi"].mpicc,
+                "MPILD": spec["mpi"].mpicxx,
+                "LD_LIBRARY_PATH": mpi_lib64 + (":" + old_ld if old_ld else ""),
             })
 
         with set_env(**env):
